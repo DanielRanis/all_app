@@ -16,7 +16,6 @@
 #include <variant>
 
 
-
 class ByteParser {
 public:
     enum class ParseError {

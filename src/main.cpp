@@ -18,7 +18,7 @@ int main() {
             std::cout << "Error: Too short buffer" << std::endl;
         }
     } else {
-        const auto& [messageLength, messageType, sequenceNumber, payload] = std::get<ParseData>(result);
+        const auto &[messageLength, messageType, sequenceNumber, payload] = std::get<ParseData>(result);
         std::cout << "Message Length: " << messageLength << std::endl;
         std::cout << "Message Type: " << static_cast<int>(messageType) << std::endl;
         std::cout << "Sequence Number: " << sequenceNumber << std::endl;
