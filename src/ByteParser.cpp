@@ -2,26 +2,10 @@
 // Created by daniel on 11/20/26.
 //
 #include "ByteParser.h"
+#include "HelperReaders.h"
 #include <optional>
 #include <utility>
-#include <concepts>
 
-
-//Anonymous namespace for Helper Functions
-namespace {
-    template<std::unsigned_integral T>
-    std::optional<T> readBigEndian(const std::span<const std::byte> data) noexcept {
-        if (data.empty()) {
-            return std::nullopt;
-        }
-
-        T value = 0;
-        for (const std::byte byte: data) {
-            value = static_cast<T>((value << 8) | std::to_integer<unsigned int>(byte));
-        }
-        return value;
-    }
-}
 
 ByteParser::Result ByteParser::parse(const std::span<const std::byte> data) noexcept {
     static constexpr std::size_t msgLengthBytes = 2;
@@ -42,7 +26,8 @@ ByteParser::Result ByteParser::parse(const std::span<const std::byte> data) noex
     }
 
     // Parse and check message length
-    const auto msgLength = readBigEndian<std::uint16_t>(data.subspan(0, msgLengthBytes));
+    const auto msgLength = HelperReaders::readBigEndian<std::uint16_t>(
+        data.subspan(0, msgLengthBytes));
     if (!msgLength || msgLength.value() > data.size() || msgLength.value() < headerSize) {
         return ParseError::InvalidLength;
     }
@@ -50,13 +35,15 @@ ByteParser::Result ByteParser::parse(const std::span<const std::byte> data) noex
     const std::size_t payloadSize = msgLength.value() - headerSize;
 
     // Parse and check message type
-    const auto msgType = readBigEndian<std::uint8_t>(data.subspan(msgLengthBytes, msgTypeBytes));
+    const auto msgType = HelperReaders::readBigEndian<std::uint8_t>(
+        data.subspan(msgLengthBytes, msgTypeBytes));
     if (!msgType || (static_cast<MessageType>(msgType.value()) != MessageType::QuoteUpdate && static_cast<MessageType>(
                          msgType.value()) != MessageType::TradeMessage)) {
         return ParseError::UnsupportedMessageType;
     }
     // Parse sequence number
-    const auto seqNum = readBigEndian<std::uint32_t>(data.subspan(headerSize - seqNumBytes, seqNumBytes));
+    const auto seqNum = HelperReaders::readBigEndian<std::uint32_t>(data.subspan(
+        headerSize - seqNumBytes, seqNumBytes));
 
     // Parse Payload
     PayloadMessage payload;
@@ -65,21 +52,25 @@ ByteParser::Result ByteParser::parse(const std::span<const std::byte> data) noex
             if (payloadSize != payloadQuoteUpdateBytes) {
                 return ParseError::InvalidPayloadLength;
             }
-            const auto quoteInstrumentID = readBigEndian<std::uint32_t>(data.subspan(headerSize, instrumentIDBytes));
-            const auto quotePrice = readBigEndian<std::uint64_t>(
+            const auto quoteInstrumentID = HelperReaders::readBigEndian<std::uint32_t>(
+                data.subspan(headerSize, instrumentIDBytes));
+            const auto quotePrice = HelperReaders::readBigEndian<std::uint64_t>(
                 data.subspan(headerSize + instrumentIDBytes, priceBytes));
-            const auto quoteQuantity = readBigEndian<std::uint32_t>(
+            const auto quoteQuantity = HelperReaders::readBigEndian<std::uint32_t>(
                 data.subspan(headerSize + instrumentIDBytes + priceBytes, quantityBytes));
-            const auto quoteSide = readBigEndian<std::uint8_t>(
+            const auto quoteSide = HelperReaders::readBigEndian<std::uint8_t>(
                 data.subspan(headerSize + instrumentIDBytes + priceBytes + quantityBytes, sideBytes));
-
+            // Check for valid optional values
+            if (!quoteInstrumentID.has_value() || !quotePrice.has_value() || !quoteQuantity.has_value() || !quoteSide.
+                has_value()) {
+                return ParseError::ParserError;
+            }
             // Check side value
             if (static_cast<Side>(quoteSide.value()) != Side::Bid && static_cast<Side>(
                     quoteSide.
                     value()) != Side::Ask) {
                 return ParseError::InvalidQuoteSide;
             }
-
             // Create QuoteUpdateMessage payload
             payload = QuoteUpdateMessage{
                 .instrumentID = quoteInstrumentID.value(),
@@ -93,11 +84,16 @@ ByteParser::Result ByteParser::parse(const std::span<const std::byte> data) noex
             if (payloadSize != payloadTradeMessageBytes) {
                 return ParseError::InvalidPayloadLength;
             }
-            const auto tradeInstrumentID = readBigEndian<std::uint32_t>(data.subspan(headerSize, instrumentIDBytes));
-            const auto tradePrice = readBigEndian<std::uint64_t>(
+            const auto tradeInstrumentID = HelperReaders::readBigEndian<std::uint32_t>(
+                data.subspan(headerSize, instrumentIDBytes));
+            const auto tradePrice = HelperReaders::readBigEndian<std::uint64_t>(
                 data.subspan(headerSize + instrumentIDBytes, priceBytes));
-            const auto tradeQuantity = readBigEndian<std::uint32_t>(
+            const auto tradeQuantity = HelperReaders::readBigEndian<std::uint32_t>(
                 data.subspan(headerSize + instrumentIDBytes + priceBytes, quantityBytes));
+            // Check for valid optional values
+            if (!tradeInstrumentID.has_value() || !tradePrice.has_value() || !tradeQuantity.has_value()) {
+                return ParseError::ParserError;
+            }
             // Create TradeMessage payload
             payload = TradeMessage{
                 .instrumentID = tradeInstrumentID.value(),

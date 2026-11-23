@@ -36,6 +36,7 @@ public:
         InvalidPayloadLength,
         UnsupportedMessageType,
         InvalidQuoteSide,
+        ParserError,
     };
 
     struct QuoteUpdateMessage {
