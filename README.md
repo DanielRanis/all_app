@@ -2,25 +2,27 @@
 
 ## Day 1: Build a bounded byte parser
 
-Write a C++20 function that reads one message from a byte buffer and returns either a parsed message or a parse error. This is the task specification; it does not include a solution.
+Write a C++20 function that reads one message from a byte buffer and returns either a parsed message or a parse error.
+This is the task specification; it does not include a solution.
 
 ### Message format
 
 All integer fields are big-endian. The message length includes the 7-byte header.
 
-| Offset | Size | Field |
-| ---: | ---: | --- |
-| 0 | 2 bytes | Message length |
-| 2 | 1 byte | Message type |
-| 3 | 4 bytes | Sequence number |
-| 7 | Remaining declared bytes | Payload |
+| Offset |                     Size | Field           |
+|-------:|-------------------------:|-----------------|
+|      0 |                  2 bytes | Message length  |
+|      2 |                   1 byte | Message type    |
+|      3 |                  4 bytes | Sequence number |
+|      7 | Remaining declared bytes | Payload         |
 
 For this exercise, supported message types are `1` and `2`. The payload may be empty and may contain arbitrary bytes.
 
 ### Function requirements
 
 - Accept a non-owning byte range, such as `std::span<const std::byte>`.
-- Return a result that distinguishes success from failure. On success, expose the message type, sequence number, and payload. The payload must refer to the input buffer rather than copy it.
+- Return a result that distinguishes success from failure. On success, expose the message type, sequence number, and
+  payload. The payload must refer to the input buffer rather than copy it.
 - Reject input shorter than the 7-byte header.
 - Reject a declared length smaller than the header or larger than the available input.
 - Reject unsupported message types.
@@ -40,18 +42,19 @@ Allow about 30–40 minutes. The returned payload view is valid only while the i
 
 ## Day 2: Parse typed market data messages
 
-Extend the Day 1 parser so it decodes typed payloads into structured market data updates. Keep the parser stateless and allocation-free. This is the task specification; it does not include a solution.
+Extend the Day 1 parser so it decodes typed payloads into structured market data updates. Keep the parser stateless and
+allocation-free. This is the task specification; it does not include a solution.
 
 ### Common frame
 
 Keep the Day 1 7-byte header. All integer fields are big-endian, and the message length includes the header.
 
-| Offset | Size | Field |
-| ---: | ---: | --- |
-| 0 | 2 bytes | Total message length |
-| 2 | 1 byte | Message type |
-| 3 | 4 bytes | Sequence number |
-| 7 | Remaining declared bytes | Type-specific payload |
+| Offset |                     Size | Field                 |
+|-------:|-------------------------:|-----------------------|
+|      0 |                  2 bytes | Total message length  |
+|      2 |                   1 byte | Message type          |
+|      3 |                  4 bytes | Sequence number       |
+|      7 | Remaining declared bytes | Type-specific payload |
 
 Ignore bytes after the declared message; they may belong to the next frame.
 
@@ -59,20 +62,20 @@ Ignore bytes after the declared message; they may belong to the next frame.
 
 **Type 1: Quote update — exactly 17 payload bytes**
 
-| Payload offset | Size | Field |
-| ---: | ---: | --- |
-| 0 | 4 bytes | Instrument ID |
-| 4 | 8 bytes | Price in integer ticks |
-| 12 | 4 bytes | Quantity |
-| 16 | 1 byte | Side: `1` = bid, `2` = ask |
+| Payload offset |    Size | Field                      |
+|---------------:|--------:|----------------------------|
+|              0 | 4 bytes | Instrument ID              |
+|              4 | 8 bytes | Price in integer ticks     |
+|             12 | 4 bytes | Quantity                   |
+|             16 |  1 byte | Side: `1` = bid, `2` = ask |
 
 **Type 2: Trade — exactly 16 payload bytes**
 
-| Payload offset | Size | Field |
-| ---: | ---: | --- |
-| 0 | 4 bytes | Instrument ID |
-| 4 | 8 bytes | Price in integer ticks |
-| 12 | 4 bytes | Quantity |
+| Payload offset |    Size | Field                  |
+|---------------:|--------:|------------------------|
+|              0 | 4 bytes | Instrument ID          |
+|              4 | 8 bytes | Price in integer ticks |
+|             12 | 4 bytes | Quantity               |
 
 ### Requirements
 

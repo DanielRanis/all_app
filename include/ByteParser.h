@@ -15,24 +15,53 @@
 #include <span>
 #include <variant>
 
-
+// ByteParser class for parsing byte buffers
 class ByteParser {
 public:
+    enum class Side : std::uint8_t {
+        None = 0,
+        Bid = 1,
+        Ask = 2,
+    };
+
+    enum class MessageType : std::uint8_t {
+        None = 0,
+        QuoteUpdate = 1,
+        TradeMessage = 2,
+    };
+
     enum class ParseError {
         TooShortBuffer,
         InvalidLength,
+        InvalidPayloadLength,
         UnsupportedMessageType,
+        InvalidQuoteSide,
     };
+
+    struct QuoteUpdateMessage {
+        std::uint32_t instrumentID = 0;
+        std::uint64_t price = 0;
+        std::uint32_t quantity = 0;
+        Side side = Side::None;
+    };
+
+    struct TradeMessage {
+        std::uint32_t instrumentID = 0;
+        std::uint64_t price = 0;
+        std::uint32_t quantity = 0;
+    };
+
+    using PayloadMessage = std::variant<QuoteUpdateMessage, TradeMessage>;
 
     struct ParseData {
         std::uint16_t messageLength = 0;
-        std::uint8_t messageType = 0;
+        MessageType messageType = MessageType::None;
         std::uint32_t sequenceNumber = 0;
-        std::span<const std::byte> payload{};
+        PayloadMessage payload;
     };
 
     using Result = std::variant<ParseData, ParseError>;
 
-    static Result parse(std::span<const std::byte>) noexcept;
+    static Result parse(const std::span<const std::byte>) noexcept;
 };
 #endif //ALL_APP_BYTEPARSER_H
