@@ -88,3 +88,25 @@ Ignore bytes after the declared message; they may belong to the next frame.
 - Do not copy the input payload or allocate memory.
 
 Allow about 40–50 minutes. Manually trace one valid quote, one valid trade, and one malformed message.
+
+## Day 3: Safe integer decoding and alignment
+
+Tighten the big-endian integer reader and explain why it is safe to use on network bytes. This is the task specification; it does not include a solution.
+
+### Requirements
+
+- Make the helper accept a byte span and an unsigned integer type.
+- Require the span to contain exactly the number of bytes needed for that type; reject shorter or longer spans.
+- Decode `std::uint16_t`, `std::uint32_t`, and `std::uint64_t` values in big-endian order.
+- Exercise it on byte spans that begin at an unaligned address, such as offset 1 in a larger buffer.
+- Do not cast packet-buffer pointers to integer or packet-struct pointers.
+- Do not allocate memory.
+
+### Check these cases
+
+- Decode known values: `0x1234`, `0x12345678`, and `0x0123456789ABCDEF`.
+- Confirm the same bytes decode correctly when they start at an unaligned offset.
+- Confirm undersized and oversized spans are rejected.
+- Re-run the Day 2 quote and trade examples.
+
+Be ready to explain how host byte order, alignment, padding, and object lifetime affect interpreting a network buffer. Allow about 30–40 minutes.
