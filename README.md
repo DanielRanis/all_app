@@ -110,3 +110,34 @@ Tighten the big-endian integer reader and explain why it is safe to use on netwo
 - Re-run the Day 2 quote and trade examples.
 
 Be ready to explain how host byte order, alignment, padding, and object lifetime affect interpreting a network buffer. Allow about 30–40 minutes.
+
+## Day 4: Maintain a sequenced order book
+
+Build a small, fixed-capacity order book that consumes the Day 2 quote updates. Focus on correct state changes and sequence handling, not speed tuning. This is the task specification; it does not include a solution.
+
+### Book model
+
+- Support one instrument per book instance.
+- Store up to 8 bid price levels and 8 ask price levels.
+- Keep bids sorted from highest price to lowest, and asks from lowest price to highest.
+- A quote update with quantity `0` removes that price level; otherwise it inserts or updates the level.
+- If an update would exceed capacity, report an error and leave the book unchanged.
+
+### Snapshot and update behavior
+
+- Provide a way to load a snapshot: an instrument ID, a sequence number, and the current quote levels.
+- A valid snapshot replaces the book and marks it synchronized.
+- Apply a quote update only when its sequence number is exactly one greater than the book's current sequence.
+- Ignore and report a duplicate or stale update whose sequence number is less than or equal to the current sequence.
+- If there is a sequence gap, mark the book unsynchronized. Ignore further updates until a new valid snapshot arrives.
+- Reject updates for a different instrument.
+- A rejected snapshot must not partially change the current book.
+
+### Constraints and checks
+
+- Use fixed-capacity storage; do not allocate memory while applying snapshots or updates.
+- Check invalid side values and capacity limits.
+- Verify that bids and asks remain correctly sorted.
+- Manually trace a snapshot, an update, a level removal, a duplicate, a sequence gap, and recovery with a new snapshot.
+
+Allow about 60–90 minutes. Be ready to explain how the book stays safe after a gap and why you require a fresh snapshot before applying more updates.
