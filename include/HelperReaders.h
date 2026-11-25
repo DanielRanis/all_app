@@ -9,8 +9,8 @@
 #include <optional>
 #include <span>
 
-//Anonymous namespace for Helper Functions
-namespace HelperReaders{
+// Namespace for Helper Reader Functions
+namespace HelperReaders {
     template<std::unsigned_integral T>
     std::optional<T> readBigEndian(const std::span<const std::byte> data) noexcept {
         if (data.empty() || data.size() != sizeof(T)) {

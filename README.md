@@ -91,7 +91,8 @@ Allow about 40–50 minutes. Manually trace one valid quote, one valid trade, an
 
 ## Day 3: Safe integer decoding and alignment
 
-Tighten the big-endian integer reader and explain why it is safe to use on network bytes. This is the task specification; it does not include a solution.
+Tighten the big-endian integer reader and explain why it is safe to use on network bytes. This is the task
+specification; it does not include a solution.
 
 ### Requirements
 
@@ -109,11 +110,13 @@ Tighten the big-endian integer reader and explain why it is safe to use on netwo
 - Confirm undersized and oversized spans are rejected.
 - Re-run the Day 2 quote and trade examples.
 
-Be ready to explain how host byte order, alignment, padding, and object lifetime affect interpreting a network buffer. Allow about 30–40 minutes.
+Be ready to explain how host byte order, alignment, padding, and object lifetime affect interpreting a network buffer.
+Allow about 30–40 minutes.
 
 ## Day 4: Maintain a sequenced order book
 
-Build a small, fixed-capacity order book that consumes the Day 2 quote updates. Focus on correct state changes and sequence handling, not speed tuning. This is the task specification; it does not include a solution.
+Build a small, fixed-capacity order book that consumes the Day 2 quote updates. Focus on correct state changes and
+sequence handling, not speed tuning. This is the task specification; it does not include a solution.
 
 ### Book model
 
@@ -140,4 +143,5 @@ Build a small, fixed-capacity order book that consumes the Day 2 quote updates. 
 - Verify that bids and asks remain correctly sorted.
 - Manually trace a snapshot, an update, a level removal, a duplicate, a sequence gap, and recovery with a new snapshot.
 
-Allow about 60–90 minutes. Be ready to explain how the book stays safe after a gap and why you require a fresh snapshot before applying more updates.
+Allow about 60–90 minutes. Be ready to explain how the book stays safe after a gap and why you require a fresh snapshot
+before applying more updates.

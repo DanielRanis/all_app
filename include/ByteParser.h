@@ -14,16 +14,11 @@
 #include <cstddef>
 #include <span>
 #include <variant>
+#include "AllAppDefinitions.h"
 
 // ByteParser class for parsing byte buffers
 class ByteParser {
 public:
-    enum class Side : std::uint8_t {
-        None = 0,
-        Bid = 1,
-        Ask = 2,
-    };
-
     enum class MessageType : std::uint8_t {
         None = 0,
         QuoteUpdate = 1,
@@ -43,7 +38,7 @@ public:
         std::uint32_t instrumentID = 0;
         std::uint64_t price = 0;
         std::uint32_t quantity = 0;
-        Side side = Side::None;
+        AllAppDefinitions::Side side = AllAppDefinitions::Side::None;
     };
 
     struct TradeMessage {

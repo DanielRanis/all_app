@@ -9,19 +9,26 @@ add_executable(all_app
         src/main.cpp
         src/ByteParser.cpp
         include/ByteParser.h
-        include/HelperReaders.h)
+        include/HelperReaders.h
+        src/OrderBook.cpp
+        src/OrderBook.h
+        include/AllAppDefinitions.h
+)
 
 target_include_directories(all_app PRIVATE include)
 
 include(CTest)
-if(BUILD_TESTING)
+if (BUILD_TESTING)
     find_package(GTest REQUIRED)
 
     add_executable(HelperReadersTests
-            tests/HelperReadersTests.cpp)
+            tests/HelperReadersTests.cpp
+            src/OrderBook.cpp
+            src/OrderBook.h
+            include/AllAppDefinitions.h)
     target_include_directories(HelperReadersTests PRIVATE include)
     target_link_libraries(HelperReadersTests PRIVATE GTest::gtest_main)
 
     include(GoogleTest)
     gtest_discover_tests(HelperReadersTests)
-endif()
+endif ()

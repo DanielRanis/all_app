@@ -66,9 +66,10 @@ ByteParser::Result ByteParser::parse(const std::span<const std::byte> data) noex
                 return ParseError::ParserError;
             }
             // Check side value
-            if (static_cast<Side>(quoteSide.value()) != Side::Bid && static_cast<Side>(
+            if (static_cast<AllAppDefinitions::Side>(quoteSide.value()) != AllAppDefinitions::Side::Bid && static_cast<
+                    AllAppDefinitions::Side>(
                     quoteSide.
-                    value()) != Side::Ask) {
+                    value()) != AllAppDefinitions::Side::Ask) {
                 return ParseError::InvalidQuoteSide;
             }
             // Create QuoteUpdateMessage payload
@@ -76,7 +77,7 @@ ByteParser::Result ByteParser::parse(const std::span<const std::byte> data) noex
                 .instrumentID = quoteInstrumentID.value(),
                 .price = quotePrice.value(),
                 .quantity = quoteQuantity.value(),
-                .side = static_cast<Side>(quoteSide.value())
+                .side = static_cast<AllAppDefinitions::Side>(quoteSide.value())
             };
             break;
         }
